@@ -9,6 +9,10 @@ pub struct Index {
   pub index: HashMap<String, HashSet<i32>>,
 }
 
+lazy_static! {
+  static ref RE: Regex = Regex::new(r"[:punct:]").unwrap();
+}
+
 impl Index {
   pub fn new() -> Index {
     Index {
@@ -17,10 +21,6 @@ impl Index {
   }
 
   pub fn insert(&mut self, id: i32, data: &str) {
-    lazy_static! {
-        static ref RE: Regex = Regex::new(r"[:punct:]").unwrap();
-    }
-
     for word in data.split_whitespace() {
       let w = RE.replace_all(word, "").to_lowercase();
 
@@ -38,8 +38,22 @@ impl Index {
     self.index.get(word)
   }
 
-  pub fn search(&self, word: &str) -> HashSet<i32> {
-    self.index.get(word).unwrap().clone()
+  pub fn search(&self, text: &str) -> HashSet<i32> {
+    let mut split = text.split_whitespace();
+
+    let res: HashSet<i32> = if let Some(Some(h)) = split.next().map(|word| {
+      let w = RE.replace_all(&word, "").to_lowercase();
+      self.search_word(&w)
+    }) {
+      h.clone()
+    } else {
+      HashSet::new()
+    };
+
+    split.fold(res, |set, ref word| {
+      let w = RE.replace_all(&word, "").to_lowercase();
+      self.index.get(&w).map(|h| h.intersection(&set).cloned().collect()).unwrap_or(HashSet::new())
+    })
   }
 }
 

@@ -4,6 +4,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import org.json.JSONArray;
@@ -13,8 +14,14 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 public class MainActivity extends AppCompatActivity {
+    Button   searchButton;
+    EditText searchBox;
+    TextView text;
 
     String loadJSON(String filename) {
         String json = null;
@@ -81,6 +88,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        text         = (TextView) findViewById(R.id.text);
+        searchBox    = (EditText) findViewById(R.id.search_box);
+        searchButton = (Button) findViewById(R.id.search_button);
 
         ArrayList<Talk> talks = new ArrayList<>();
         talks.addAll(loadTalks(loadJSON("monday.json")));

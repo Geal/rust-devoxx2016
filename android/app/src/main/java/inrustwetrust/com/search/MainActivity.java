@@ -82,17 +82,16 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
 
-        String monday = loadJSON("monday.json");
-
-        ArrayList<Talk> mondayTalks = loadTalks(monday);
-
-        String wednesday = loadJSON("wednesday.json");
-
-        ArrayList<Talk> wednesdayTalks = loadTalks(wednesday);
+        ArrayList<Talk> talks = new ArrayList<>();
+        talks.addAll(loadTalks(loadJSON("monday.json")));
+        talks.addAll(loadTalks(loadJSON("tuesday.json")));
+        talks.addAll(loadTalks(loadJSON("wednesday.json")));
+        talks.addAll(loadTalks(loadJSON("thursday.json")));
+        talks.addAll(loadTalks(loadJSON("friday.json")));
 
         Index index = new Index();
-        for(int i = 0; i < wednesdayTalks.size(); i++) {
-            index.insert(i, wednesdayTalks.get(i).summary);
+        for(int i = 0; i < talks.size(); i++) {
+            index.insert(i, talks.get(i).summary);
         }
 
         for (Map.Entry<String, HashSet<Integer>> entry : index.getIndex().entrySet()) {
@@ -102,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
         Set<Integer> res = index.searchString("java build");
         Log.d("search", "results for \"java build\": " + res.toString());
         for(Integer i: res) {
-            Talk t = wednesdayTalks.get(i);
+            Talk t = talks.get(i);
             Log.d("search", t.title + " - " + t.summary);
         }
             //Log.d("search", "json file: "+monday);

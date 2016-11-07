@@ -1,7 +1,11 @@
 #[macro_use] extern crate lazy_static;
 extern crate regex;
+extern crate libc;
 
+use std::ffi::CStr;
+use std::str;
 use regex::Regex;
+use libc::c_char;
 
 use std::collections::{HashMap,HashSet};
 
@@ -55,6 +59,54 @@ impl Index {
       self.index.get(&w).map(|h| h.intersection(&set).cloned().collect()).unwrap_or(HashSet::new())
     })
   }
+}
+
+pub struct SearchResult {
+  data: Vec<i32>
+}
+
+#[no_mangle]
+pub extern fn index_create() -> Box<Index> {
+  Box::new(Index::new())
+}
+
+#[no_mangle]
+pub extern fn index_free(_: Box<Index>) {
+
+}
+
+#[no_mangle]
+pub extern fn index_insert(index: &mut Index, id: i32, raw_text: *const c_char) {
+  let slice = unsafe { CStr::from_ptr(raw_text).to_bytes() };
+  let text = str::from_utf8(slice).unwrap();
+  index.insert(id, text);
+}
+
+#[no_mangle]
+pub extern fn index_search(index: &Index, raw_text: *const c_char) -> Box<SearchResult> {
+  let slice = unsafe { CStr::from_ptr(raw_text).to_bytes() };
+  let text = str::from_utf8(slice).unwrap();
+  let h = index.search(text);
+  let v: Vec<i32> = h.iter().cloned().collect();
+
+  Box::new(SearchResult {
+    data: v
+  })
+}
+
+#[no_mangle]
+pub extern fn search_result_count(search: &SearchResult) -> i32 {
+  search.data.len() as i32
+}
+
+#[no_mangle]
+pub extern fn search_result_get(search: &SearchResult, index: i32) -> i32 {
+  *search.data.get(index as usize).unwrap()
+}
+
+#[no_mangle]
+pub extern fn search_result_free(_: Box<SearchResult>) {
+
 }
 
 #[test]

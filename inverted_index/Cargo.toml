@@ -6,3 +6,4 @@ authors = ["Geoffroy Couprie <geo.couprie@gmail.com>"]
 [dependencies]
 lazy_static = "*"
 regex = "*"
+libc = "*"

@@ -174,5 +174,8 @@ public class MainActivity extends AppCompatActivity {
                 displaySearch(query);
             }
         });
+
+        int res = RustIndex.INSTANCE.add(30,12);
+        Log.d("search", "JNA returned "+Integer.toString(res));
     }
 }

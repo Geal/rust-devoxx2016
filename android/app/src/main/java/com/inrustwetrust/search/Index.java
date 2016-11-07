@@ -1,4 +1,4 @@
-package inrustwetrust.com.search;
+package com.inrustwetrust.search;
 
 import java.util.ArrayList;
 import java.util.HashMap;

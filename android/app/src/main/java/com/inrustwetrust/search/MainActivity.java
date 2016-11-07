@@ -1,4 +1,4 @@
-package inrustwetrust.com.search;
+package com.inrustwetrust.search;
 
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;

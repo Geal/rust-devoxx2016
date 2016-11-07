@@ -7,3 +7,7 @@ authors = ["Geoffroy Couprie <geo.couprie@gmail.com>"]
 lazy_static = "*"
 regex = "*"
 libc = "*"
+
+[lib]
+name = "index"
+crate-type = ["dylib"]

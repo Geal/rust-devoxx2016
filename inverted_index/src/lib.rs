@@ -38,8 +38,8 @@ impl Index {
     self.index.get(word)
   }
 
-  pub fn search(&self, word: &str) -> Option<&HashSet<i32>> {
-    self.index.get(word)
+  pub fn search(&self, word: &str) -> HashSet<i32> {
+    self.index.get(word).unwrap().clone()
   }
 }
 
@@ -63,10 +63,19 @@ fn try_to_index() {
  And everywhere that lambda went
  Her calculus got blown.");
 
-  println!("search: {:?}", index.search("mary"));
-  println!("search: {:?}", index.search("was"));
-  println!("search: {:?}", index.search("house"));
-  println!("search: {:?}", index.search("house."));
-  println!("search: {:?}", index.search("sheep everywhere"));
-  assert!(false);
+  println!("index: {:?}", index.index);
+
+  let mary_set:HashSet<i32>              = [1, 2, 3, 0].iter().cloned().collect();
+  let house_set:HashSet<i32>             = [1].iter().cloned().collect();
+  let sheep_set:HashSet<i32>             = [3].iter().cloned().collect();
+  let everywhere_set:HashSet<i32>        = [1, 2, 3].iter().cloned().collect();
+  let sheep_everywhere_set: HashSet<i32> = sheep_set.intersection(&everywhere_set).cloned().collect();
+
+  assert_eq!(index.search("mary"),   mary_set);
+  assert_eq!(index.search("house"),  house_set);
+  assert_eq!(index.search("house."), house_set);
+  assert_eq!(index.search("sheep"),  sheep_set);
+  assert_eq!(index.search("everywhere"), everywhere_set);
+  assert_eq!(index.search("sheep everywhere"), sheep_everywhere_set);
+  assert_eq!(index.search("everywhere  sheep"), sheep_everywhere_set);
 }

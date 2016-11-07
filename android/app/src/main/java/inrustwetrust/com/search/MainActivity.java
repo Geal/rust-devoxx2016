@@ -90,8 +90,22 @@ public class MainActivity extends AppCompatActivity {
 
         ArrayList<Talk> wednesdayTalks = loadTalks(wednesday);
 
-        //Log.d("search", "json file: "+monday);
-        TextView txt = (TextView) findViewById(R.id.text);
+        Index index = new Index();
+        for(int i = 0; i < wednesdayTalks.size(); i++) {
+            index.insert(i, wednesdayTalks.get(i).summary);
+        }
+
+        for (Map.Entry<String, HashSet<Integer>> entry : index.getIndex().entrySet()) {
+            Log.d("search", entry.getKey() + ": "+entry.getValue().toString());
+        }
+
+        Set<Integer> res = index.searchString("java build");
+        Log.d("search", "results for \"java build\": " + res.toString());
+        for(Integer i: res) {
+            Talk t = wednesdayTalks.get(i);
+            Log.d("search", t.title + " - " + t.summary);
+        }
+            //Log.d("search", "json file: "+monday);
         txt.setText(monday);
 
     }

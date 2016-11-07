@@ -1,0 +1,3 @@
+[target.arm-linux-androideabi]
+ar = "/usr/local/Cellar/android-ndk/r12b/toolchains/arm-linux-androideabi-4.9/prebuilt/darwin-x86_64/bin/arm-linux-androideabi-ar"
+linker = "/Users/geal/presentations/devoxxbe2016/code/inverted_index/linker-wrapper.sh"

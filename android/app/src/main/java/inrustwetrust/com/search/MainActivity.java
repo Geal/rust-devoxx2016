@@ -88,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
         Log.d("search", "searching for \""+query+"\"");
         final Set<Integer> res = index.searchString(query);
         Log.d("search", "results for \""+query+"\": " + res.toString());
-        String s = "results for \"\"+query+\"\": " +Integer.toString(res.size())+" talks\n";
+        String s = "found " +Integer.toString(res.size())+" talks\n";
         results.clear();
         for(Integer i: res) {
             Talk t = talks.get(i);

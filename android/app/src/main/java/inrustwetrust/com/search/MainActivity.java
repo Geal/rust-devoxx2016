@@ -86,9 +86,12 @@ public class MainActivity extends AppCompatActivity {
 
     void displaySearch(String query) {
         Log.d("search", "searching for \""+query+"\"");
+        long start = System.nanoTime();
         final Set<Integer> res = index.searchString(query);
+        long end = System.nanoTime();
+
         Log.d("search", "results for \""+query+"\": " + res.toString());
-        String s = "found " +Integer.toString(res.size())+" talks\n";
+        String s = "found " +Integer.toString(res.size())+" talks in " + (end - start) / 1000 + " microseconds\n";
         results.clear();
         for(Integer i: res) {
             Talk t = talks.get(i);
@@ -133,19 +136,25 @@ public class MainActivity extends AppCompatActivity {
         new AsyncTask<Object, Object, Void>(){
             @Override
             protected Void doInBackground(Object... params) {
+                long start = System.nanoTime();
                 talks = new ArrayList<>();
                 talks.addAll(loadTalks(loadJSON("monday.json")));
                 talks.addAll(loadTalks(loadJSON("tuesday.json")));
                 talks.addAll(loadTalks(loadJSON("wednesday.json")));
                 talks.addAll(loadTalks(loadJSON("thursday.json")));
                 talks.addAll(loadTalks(loadJSON("friday.json")));
+                long talks_loaded = System.nanoTime();
 
                 index = new Index();
                 for(int i = 0; i < talks.size(); i++) {
                     index.insert(i, talks.get(i).summary);
                 }
+                long index_created = System.nanoTime();
 
-                displaySearch("java build");
+                //displaySearch("java build");
+
+                Log.d("search", "talks decoded in "+ (talks_loaded - start) / 1000000 + " milliseconds");
+                Log.d("search", "index created in "+ (index_created - talks_loaded) / 1000000 + " milliseconds");
 
                 Log.d("search", Integer.toString(talks.size())+" talks stored");
                 return null;

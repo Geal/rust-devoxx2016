@@ -6,8 +6,13 @@ import android.util.Log;
 import android.widget.Button;
 import android.widget.TextView;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -27,6 +32,50 @@ public class MainActivity extends AppCompatActivity {
         return json;
     }
 
+    ArrayList<Talk> loadTalks(String jsonData) {
+        ArrayList<Talk> talks = new ArrayList<Talk>();
+        try {
+            JSONObject obj = new JSONObject(jsonData);
+            JSONArray slots = obj.getJSONArray("slots");
+
+            for (int i = 0; i < slots.length(); i++) {
+                JSONObject slot = slots.getJSONObject(i);
+                String room_id = slot.getString("roomId");
+                Log.d("search", "room: "+room_id);
+                JSONObject talk = slot.optJSONObject("talk");
+                //slot.optJSONObject()
+                if(talk == null) {
+                    Log.d("search", "no talk here");
+                } else {
+                    String title   = talk.getString("title");
+                    String summary = talk.getString("summary");
+                    Log.d("search", "title: "+title);
+                    JSONArray speakers = talk.getJSONArray("speakers");
+                    String speaker_list = speakers.getJSONObject(0).getString("name");
+                    for (int j = 1; j < speakers.length(); j++) {
+                        String name = speakers.getJSONObject(j).getString("name");
+                        speaker_list += ", "+name;
+                    }
+
+
+                    Log.d("search", title+ " - "+speaker_list+": "+summary);
+                    Talk t = new Talk(speaker_list, title, summary);
+                    talks.add(t);
+                }
+
+                /*cat_name = jArray.getJSONObject(i).getString("cat_name");
+                Log.v("Cat ID", cat_Id);
+                Log.v("Cat Name", cat_name);
+                data.add(new String[] { cat_Id, cat_name });*/
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return talks;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,7 +83,14 @@ public class MainActivity extends AppCompatActivity {
 
 
         String monday = loadJSON("monday.json");
-        Log.d("search", "json file: "+monday);
+
+        ArrayList<Talk> mondayTalks = loadTalks(monday);
+
+        String wednesday = loadJSON("wednesday.json");
+
+        ArrayList<Talk> wednesdayTalks = loadTalks(wednesday);
+
+        //Log.d("search", "json file: "+monday);
         TextView txt = (TextView) findViewById(R.id.text);
         txt.setText(monday);
 

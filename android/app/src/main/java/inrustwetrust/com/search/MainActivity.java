@@ -110,12 +110,16 @@ public class MainActivity extends AppCompatActivity {
 
         Set<Integer> res = index.searchString("java build");
         Log.d("search", "results for \"java build\": " + res.toString());
+        String s = "results for \"java build\": " +Integer.toString(res.size())+" talks\n";
         for(Integer i: res) {
             Talk t = talks.get(i);
             Log.d("search", t.title + " - " + t.summary);
+            s += t.title + "\n";
+            s += t.summary + "\n\n";
         }
-            //Log.d("search", "json file: "+monday);
-        txt.setText(monday);
 
+        text.setText(s);
+
+        Log.d("search", Integer.toString(talks.size())+" talks stored");
     }
 }

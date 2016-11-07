@@ -1,20 +1,28 @@
 package com.inrustwetrust.search;
 
+import android.support.annotation.NonNull;
 
-import com.sun.jna.Library;
-import com.sun.jna.Native;
-import com.sun.jna.NativeLibrary;
+import com.sun.jna.Structure;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
 
 /**
  * Created by geal on 07/11/2016.
  */
 
-public interface RustIndex extends Library {
-    String JNA_LIBRARY_NAME = "index";
-    NativeLibrary JNA_NATIVE_LIB = NativeLibrary.getInstance(JNA_LIBRARY_NAME);
-    RustIndex INSTANCE = (RustIndex) Native.loadLibrary(JNA_LIBRARY_NAME, RustIndex.class);
+public class RustIndex extends Structure {
+    public static class ByReference extends RustIndex implements Structure.ByReference {
+    }
 
-    int add(int a, int b);
-    Index index_create();
-    void index_free(Index index);
+    public static class ByValue extends RustIndex implements Structure.ByValue {
+    }
+
+    @Override
+    protected List<String> getFieldOrder() {
+        return new ArrayList<String>();
+    }
 }

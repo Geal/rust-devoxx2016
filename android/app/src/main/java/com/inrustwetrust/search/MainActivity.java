@@ -11,6 +11,8 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.sun.jna.Pointer;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -19,7 +21,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Set;
-import java.util.concurrent.RunnableFuture;
 
 public class MainActivity extends AppCompatActivity {
     Button   searchButton;
@@ -175,7 +176,9 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        int res = RustIndex.INSTANCE.add(30,12);
+        int res = Rust.INSTANCE.add(30,12);
         Log.d("search", "JNA returned "+Integer.toString(res));
+
+        Pointer idx = Rust.INSTANCE.index_create();
     }
 }

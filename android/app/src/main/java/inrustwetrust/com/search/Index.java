@@ -27,7 +27,7 @@ public class Index {
         String[] words   = data.split(" ");
 
         for (String _word : words) {
-            String w = _word.toLowerCase();
+            String w = _word.toLowerCase().replaceAll("\\p{Punct}", "");
             HashSet s = index.get(w);
             if(s == null) {
                 s = new HashSet<Integer>();

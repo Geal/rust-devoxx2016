@@ -1,3 +1,8 @@
+#[macro_use] extern crate lazy_static;
+extern crate regex;
+
+use regex::Regex;
+
 use std::collections::{HashMap,HashSet};
 
 pub struct Index {
@@ -12,7 +17,21 @@ impl Index {
   }
 
   pub fn insert(&mut self, id: i32, data: &str) {
-    
+    lazy_static! {
+        static ref RE: Regex = Regex::new(r"[:punct:]").unwrap();
+    }
+
+    for word in data.split_whitespace() {
+      let w = RE.replace_all(word, "").to_lowercase();
+
+      if self.index.contains_key(&w) {
+        self.index.get_mut(&w).map(|h| h.insert(id));
+      } else {
+        let mut h = HashSet::new();
+        h.insert(id);
+        self.index.insert(w, h);
+      }
+    }
   }
 
   pub fn search_word(&self, word: &str) -> Option<&HashSet<i32>> {

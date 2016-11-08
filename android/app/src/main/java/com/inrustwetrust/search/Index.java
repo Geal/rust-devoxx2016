@@ -48,11 +48,13 @@ public class Index {
 
     public Set<Integer> searchString(String s) {
         String[] words   = s.split(" ");
+        String w0 = words[0].toLowerCase().replaceAll("\\p{Punct}", "");
 
-        HashSet<Integer> res = searchWord(words[0]);
+        HashSet<Integer> res = searchWord(w0);
 
         for(int i = 1; i < words.length; i++) {
-            res.retainAll(searchWord(words[i]));
+            String wi = words[i].toLowerCase().replaceAll("\\p{Punct}", "");
+            res.retainAll(searchWord(wi));
         }
 
         return res;

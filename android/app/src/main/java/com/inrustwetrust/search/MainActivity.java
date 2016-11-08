@@ -10,6 +10,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.sun.jna.Pointer;
 
@@ -20,6 +21,8 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Set;
 
 public class MainActivity extends AppCompatActivity {
@@ -28,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
     TextView text;
     ListView result_list;
     Index    index;
+    Pointer  rustIndex;
     ArrayList<Talk> talks;
     ArrayList<String> results;
     ArrayAdapter<String> adapter;
@@ -91,12 +95,23 @@ public class MainActivity extends AppCompatActivity {
         final Set<Integer> res = index.searchString(query);
         long end = System.nanoTime();
 
+        Pointer searchResult = Rust.INSTANCE.index_search(rustIndex, query);
+        long rustEnd = System.nanoTime();
+
         Log.d("search", "results for \""+query+"\": " + res.toString());
-        String s = "found " +Integer.toString(res.size())+" talks in " + (end - start) / 1000 + " microseconds\n";
+        String s = "java found " +Integer.toString(res.size())+" talks in " + (end - start) / 1000 + " microseconds\n";
+        s+= "rust found " +Rust.INSTANCE.search_result_count(searchResult)
+                +" talks in " + (rustEnd - end) / 1000 + " microseconds\n";
+        HashSet<Integer> rustResult = new HashSet<>();
+        for(int i=0; i < Rust.INSTANCE.search_result_count(searchResult); i++) {
+            rustResult.add(Integer.valueOf(Rust.INSTANCE.search_result_get(searchResult, i)));
+        }
+        Rust.INSTANCE.search_result_free(searchResult);
+        assert res.equals(rustResult);
         results.clear();
         for(Integer i: res) {
             Talk t = talks.get(i);
-            Log.d("search", t.speakerList+": "+ t.title + " - " + t.summary);
+            //Log.d("search", t.speakerList+": "+ t.title + " - " + t.summary);
             s += t.title + "\n";
             s += t.summary + "\n\n";
 
@@ -113,6 +128,8 @@ public class MainActivity extends AppCompatActivity {
                 adapter.notifyDataSetChanged();
             }
         });
+        Log.d("search", "java found " +Integer.toString(res.size())+" talks in " + (end - start) / 1000 + " microseconds\n");
+        Log.d("search", "rust found " +Integer.toString(res.size())+" talks in " + (rustEnd - end) / 1000 + " microseconds\n");
 
     }
 
@@ -144,20 +161,35 @@ public class MainActivity extends AppCompatActivity {
                 talks.addAll(loadTalks(loadJSON("wednesday.json")));
                 talks.addAll(loadTalks(loadJSON("thursday.json")));
                 talks.addAll(loadTalks(loadJSON("friday.json")));
-                long talks_loaded = System.nanoTime();
+                long talksLoaded = System.nanoTime();
 
                 index = new Index();
                 for(int i = 0; i < talks.size(); i++) {
                     index.insert(i, talks.get(i).summary);
                 }
-                long index_created = System.nanoTime();
+                long indexCreated = System.nanoTime();
+
+                rustIndex = Rust.INSTANCE.index_create();
+                for(int i = 0; i < talks.size(); i++) {
+                    Rust.INSTANCE.index_insert(rustIndex, i, talks.get(i).summary);
+                }
+                long rustIndexCreated = System.nanoTime();
+
 
                 //displaySearch("java build");
 
-                Log.d("search", "talks decoded in "+ (talks_loaded - start) / 1000000 + " milliseconds");
-                Log.d("search", "index created in "+ (index_created - talks_loaded) / 1000000 + " milliseconds");
+                Log.d("search", "talks decoded in "+ (talksLoaded - start) / 1000000 + " milliseconds");
+                Log.d("search", "index created in "+ (indexCreated - talksLoaded) / 1000000 + " milliseconds");
+                Log.d("search", "rust index created in "+ (rustIndexCreated - indexCreated) / 1000000 + " milliseconds");
+
 
                 Log.d("search", Integer.toString(talks.size())+" talks stored");
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(MainActivity.this, "talks loaded", Toast.LENGTH_SHORT).show();
+                    }
+                });
                 return null;
             }
 
@@ -179,6 +211,6 @@ public class MainActivity extends AppCompatActivity {
         int res = Rust.INSTANCE.add(30,12);
         Log.d("search", "JNA returned "+Integer.toString(res));
 
-        Pointer idx = Rust.INSTANCE.index_create();
+
     }
 }

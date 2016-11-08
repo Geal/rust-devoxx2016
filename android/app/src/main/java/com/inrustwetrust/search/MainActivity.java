@@ -112,8 +112,8 @@ public class MainActivity extends AppCompatActivity {
         for(Integer i: res) {
             Talk t = talks.get(i);
             //Log.d("search", t.speakerList+": "+ t.title + " - " + t.summary);
-            s += t.title + "\n";
-            s += t.summary + "\n\n";
+            //s += t.title + "\n";
+            //s += t.summary + "\n\n";
 
             String s2 = t.title + "\n\n" + t.summary;
             results.add(s2);
@@ -182,20 +182,19 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("search", "index created in "+ (indexCreated - talksLoaded) / 1000000 + " milliseconds");
                 Log.d("search", "rust index created in "+ (rustIndexCreated - indexCreated) / 1000000 + " milliseconds");
 
+                final String txt = "talks decoded in "+ (talksLoaded - start) / 1000000 + " milliseconds\n"
+                        + "java index created in "+ (indexCreated - talksLoaded) / 1000000 + " milliseconds\n"
+                        + "rust index created in "+ (rustIndexCreated - indexCreated) / 1000000 + " milliseconds";
 
                 Log.d("search", Integer.toString(talks.size())+" talks stored");
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        text.setText(txt);
                         Toast.makeText(MainActivity.this, "talks loaded", Toast.LENGTH_SHORT).show();
                     }
                 });
                 return null;
-            }
-
-            @Override
-            protected void onPostExecute(Void s) {
-
             }
         }.execute();
 
@@ -203,8 +202,14 @@ public class MainActivity extends AppCompatActivity {
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String query = searchBox.getText().toString();
-                displaySearch(query);
+                final String query = searchBox.getText().toString();
+                new AsyncTask<Object, Object, Void>() {
+                    @Override
+                    protected Void doInBackground(Object... params) {
+                        displaySearch(query);
+                        return null;
+                    }
+                }.execute();
             }
         });
 

@@ -13,9 +13,9 @@ import static android.R.attr.data;
  */
 
 public class Index {
-    Map<String, HashSet<Integer>> index;
+    HashMap<String, HashSet<Integer>> index;
 
-    public Map<String, HashSet<Integer>> getIndex() {
+    public HashMap<String, HashSet<Integer>> getIndex() {
         return index;
     }
 

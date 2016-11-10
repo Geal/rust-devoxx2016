@@ -20,6 +20,7 @@ public interface Rust extends Library {
     Pointer index_create();
     void index_free(Pointer index);
     void index_insert(Pointer index, int id, String text);
+    int index_count(Pointer index);
     Pointer index_search(Pointer index, String text);
     int search_result_count(Pointer result);
     void search_result_free(Pointer result);

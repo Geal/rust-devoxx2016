@@ -9,6 +9,7 @@ use libc::c_char;
 
 use std::collections::{HashMap,HashSet};
 
+#[repr(C)]
 pub struct Index {
   pub index: HashMap<String, HashSet<i32>>,
 }
@@ -85,6 +86,11 @@ pub extern fn index_insert(index: &mut Index, id: i32, raw_text: *const c_char) 
   let slice = unsafe { CStr::from_ptr(raw_text).to_bytes() };
   let text = str::from_utf8(slice).unwrap();
   index.insert(id, text);
+}
+
+#[no_mangle]
+pub extern fn index_count(index: &Index) -> i32 {
+  index.index.keys().count() as i32
 }
 
 #[no_mangle]

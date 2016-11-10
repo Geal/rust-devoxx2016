@@ -99,15 +99,20 @@ public class MainActivity extends AppCompatActivity {
         Pointer searchResult = Rust.INSTANCE.index_search(rustIndex, query);
         long rustEnd = System.nanoTime();
 
-        Log.d("search", "results for \""+query+"\": " + res.toString());
-        String s = "java found " +Integer.toString(res.size())+" talks in " + (end - start) / 1000 + " microseconds\n";
-        s+= "rust found " +Rust.INSTANCE.search_result_count(searchResult)
-                +" talks in " + (rustEnd - end) / 1000 + " microseconds\n";
+        Log.d("search", "java results for \""+query+"\": " + res.toString());
+
         HashSet<Integer> rustResult = new HashSet<>();
-        for(int i=0; i < Rust.INSTANCE.search_result_count(searchResult); i++) {
+
+        Integer rustResultNumber = Rust.INSTANCE.search_result_count(searchResult);
+        for(int i=0; i < rustResultNumber; i++) {
             rustResult.add(Integer.valueOf(Rust.INSTANCE.search_result_get(searchResult, i)));
         }
         Rust.INSTANCE.search_result_free(searchResult);
+        Log.d("search", "rust results for \""+query+"\": " + rustResult.toString());
+
+        String s = "java found " +Integer.toString(res.size())+" talks in " + (end - start) / 1000 + " microseconds\n";
+        s+= "rust found " +rustResultNumber+" talks in " + (rustEnd - end) / 1000 + " microseconds\n";
+
         assert res.equals(rustResult);
         results.clear();
         for(Integer i: res) {
@@ -130,7 +135,10 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         Log.d("search", "java found " +Integer.toString(res.size())+" talks in " + (end - start) / 1000 + " microseconds\n");
-        Log.d("search", "rust found " +Integer.toString(res.size())+" talks in " + (rustEnd - end) / 1000 + " microseconds\n");
+        Log.d("search", "rust found " +Integer.toString(rustResultNumber)+" talks in " + (rustEnd - end) / 1000 + " microseconds\n");
+
+        //Log.d("search", "talk 15: "+talks.get(15).title + "\n"+talks.get(15).summary);
+        //Log.d("search", "talk 75: "+talks.get(75).title + "\n"+talks.get(75).summary);
 
     }
 
@@ -166,16 +174,19 @@ public class MainActivity extends AppCompatActivity {
 
                 index = new Index();
                 for(int i = 0; i < talks.size(); i++) {
+                    index.insert(i, talks.get(i).title);
                     index.insert(i, talks.get(i).summary);
                 }
                 long indexCreated = System.nanoTime();
 
                 rustIndex = Rust.INSTANCE.index_create();
                 for(int i = 0; i < talks.size(); i++) {
+                    Rust.INSTANCE.index_insert(rustIndex, i, talks.get(i).title);
                     Rust.INSTANCE.index_insert(rustIndex, i, talks.get(i).summary);
                 }
                 long rustIndexCreated = System.nanoTime();
 
+                assert Rust.INSTANCE.index_count(rustIndex) == index.getIndex().size();
 
                 //displaySearch("java build");
 
